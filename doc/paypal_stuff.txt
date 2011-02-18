@@ -1,0 +1,32 @@
+Working with PayPal
+
+Q: Can I control when PayPal subscription payments are made?
+
+A: No, when you submit our booking form, the PayPal page should include 
+a note: "Your subscription will automatically renew at the rates stated 
+above unless you cancel prior to the end of the billing period." You can 
+cancel this subscription when you choose through PayPal, 
+but please let us know too.
+
+Q: Do I have to do anything for my next subscription payment?
+
+A: No, you shouldn't need to do anything to make further monthly 
+subscription payments, PayPal will complete the transaction automatically. 
+Funds will be drawn from your account first and only fall-back to your 
+primary funding source (your bank account, credit or debit card) if necessary. 
+If there are any difficulties, the subscription payment should be attempted 
+a number of times. In this case PayPal will probably notify you of the problem.
+
+Please let us know if there is likely to be a delay in payment and we will 
+keep your text ad running while it is cleared.
+
+Q: How can I cancel my PayPal subscription?
+
+A: To cancel your subscription, log in to the PayPal site at the usual 
+address. Click on the History link and go straight to the Advanced Search 
+option on the left menu. Copy your subscription ID into the Search for field 
+and choose Transaction ID from the drop down selector next to it. Check the 
+box next to the Within selector and choose The Past Year.
+
+On the subscription details page, click the Cancel Subscription button at 
+the bottom of the page and confirm.

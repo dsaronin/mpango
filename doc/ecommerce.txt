@@ -1,0 +1,36 @@
+some of the requirements/features that might have an effect on how billing works:
+
+FEATURES
+-------------------------------------------------------------------------
+- All users get a 30/60-day free trial of all features [variable setting]
+- There are different plans, including a free one having basic features
+- Different plans have different feature/function/limitations
+- Billing period will be monthly, beginning after trial
+- Handle discounts/coupon codes: both percentage discounts, as well as special promised rates
+- special rates have time-limited authorization code good only for organization to which issued 
+- Plan pricing can change in future
+- accounts can either be by individual people or by organizations (worlds)
+- When plan pricing changes, honour existing prices for existing users for a time period (such as 6 months), then start charging higher rates. Price decreases take effect immediately.
+- All major credit and debit cards must be accepted
+- Users will be emailed a few days before their credit card is charged to notify them that they will be charged soon unless they cancel their account. 
+- Paid-through-dates are tracked; cancelled accounts are good up to paid-through date.
+- After trial period, accounts become free trial unless subscription plan started.
+- Delinquent accounts become free trial after grace period
+- when premium features become disabled (by lowering the account), they can be viewed, but not changed, edited, or scheduled.
+- Users will be charged automatically every month for their chosen plan. Each month, users will be sent an email a few days in advance to notify them that they will be charged. Once payment has been made, users will be emailed an invoice showing that their payment has been received.
+- Users will be able to upgrade or downgrade their accounts at any time. When users upgrade/downgrade, their next subscription charge will be at the new rate. Users will only be able to downgrade their accounts to a plan that can handle their data. For example, if they currently have 10 active projects they can't downgrade to the Basic plan because the Basic plan only allows 5 projects. They will have to delete or archive 5 projects before you they can downgrade to Basic.
+- Users will be able to log in to their account and change or update their credit card details.
+- Users will be able to cancel their account at any time. There will be no further subscription charges after a user has canceled their account. However, users will not be refunded for part of the month they have already paid for.
+- All parts of the payment system must be 100% PCI DSS compliant; including any 3rd party systems.
+- The payment system must support automated notification and retry of failed subscription renewals.
+- The payment system must support discount vouchers with expiry dates.
+- Credit card details must not be processed by or stored on our servers
+- they should always be processed/stored by our 3rd party payment processing partner. We do not want responsibility for securing these details and complying with legal rules and regulations.
+- Users will be able to log into their accounts and see a full billing history including dates and amounts paid. We will also need to be able to log in to a system to see customer payment plans and payment history. This will be essential for customer service.
+- gateway agnostic, .. yet gotta handle PayPal Web Std w/ recurring option, IPN
+- Handle downgrading when they violate the plan limits for lower level plans.
+
+REJECTED IDEAS
+--------------------------------------------------------------------------
+- Users will be required to enter their credit card details to sign up to their chosen plan.
+- Each plan will have a 30-day free trial so users' credit cards should only be charged after the 30-day period expires. However, the validity of credits cards should be checked at the time of sign up.
