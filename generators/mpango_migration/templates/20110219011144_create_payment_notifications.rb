@@ -2,7 +2,7 @@ class CreatePaymentNotifications < ActiveRecord::Migration
   def self.up
     create_table :payment_notifications do |t|
       t.text :params
-      t.bigint :cart_id
+      t.column :cart_id, :bigint
       t.string :status
 
       t.timestamps
