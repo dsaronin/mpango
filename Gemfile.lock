@@ -34,6 +34,7 @@ GEM
     erubis (2.6.6)
       abstract (>= 1.0.0)
     git (1.2.5)
+    haml (3.0.25)
     i18n (0.5.0)
     jeweler (1.5.2)
       bundler (~> 1.0.0)
@@ -78,6 +79,7 @@ PLATFORMS
 DEPENDENCIES
   aasm (>= 2.2)
   bundler (~> 1.0.0)
+  haml
   jeweler (~> 1.5.2)
   rails (>= 3.0)
   rcov
