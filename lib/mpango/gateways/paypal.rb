@@ -88,13 +88,14 @@ module Mpango
 # -----------------------------------------------------------------------------
 #
 # -----------------------------------------------------------------------------
-  def paypal_url(return_url)
+  def paypal_url(return_url, notify_url)
     values = {
       :business => 'seller_1229899173_biz@railscasts.com',
       :cmd => '_cart',
       :upload => 1,
       :return => return_url,
-      :invoice => id
+      :invoice => id,
+      :notify_url => notify_url
     }
     line_items.each_with_index do |item, index|
       values.merge!({
@@ -107,22 +108,81 @@ module Mpango
     "https://www.sandbox.paypal.com/cgi-bin/webscr?" + values.to_query
   end    
   # + values.map { |k,v| "#{k} = #{v}"}.join("&")
+
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
+  def paypal_encrypted(return_url, notify_url)
+    values = {
+      :business => APP_CONFIG[:paypal_email],
+      :cmd => '_cart',
+      :upload => 1,
+      :return => return_url,
+      :invoice => id,
+      :notify_url => notify_url,
+      :cert_id => APP_CONFIG[:paypal_cert_id]
+    }
+    line_items.each_with_index do |item, index|
+      values.merge!({
+        "amount_#{index+1}" => item.unit_price,
+        "item_name_#{index+1}" => item.product.name,
+        "item_number_#{index+1}" => item.id,
+        "quantity_#{index+1}" => item.quantity
+      })
+    end
+    encrypt_for_paypal(values)
+  end
+
+PAYPAL_CERT_PEM = File.read("#{Rails.root}/certs/paypal_cert.pem")
+APP_CERT_PEM = File.read("#{Rails.root}/certs/app_cert.pem")
+APP_KEY_PEM = File.read("#{Rails.root}/certs/app_key.pem")
+
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
+  def encrypt_for_paypal(values)
+    signed = OpenSSL::PKCS7::sign(OpenSSL::X509::Certificate.new(APP_CERT_PEM), OpenSSL::PKey::RSA.new(APP_KEY_PEM, ''), values.map { |k, v| "#{k}=#{v}" }.join("\n"), [], OpenSSL::PKCS7::BINARY)
+    OpenSSL::PKCS7::encrypt([OpenSSL::X509::Certificate.new(PAYPAL_CERT_PEM)], signed.to_der, OpenSSL::Cipher::Cipher::new("DES3"), OpenSSL::PKCS7::BINARY).to_s.gsub("\n", "")
+  end
+
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
+# for testing in dev mode at localhost, we'll need the following to be used
+# to simulate IPN payment notification of a purchase. Grab the transaction id
+# txn_id from the page paypal uses after purchase in sandbox, and run following
+# from a local command window, replacing the txn_id field shown below.
+# 
+# 
+# curl -d "txn_id=3XC103945N720211C&invoice=923204115&payment_status=Completed" http://localhost:3000/payment_notifications
+# -----------------------------------------------------------------------------
+# For encryption, need to complete public/private key and certificate locally
+# will need to have openssl installed (already is on ubuntu ruby stuff)
+#
+# $ mkdir certs   (within current rails project, for site certificates, keys)
+# $ cd certs
+# $ openssl genrsa -out app_key.pem 1024
+# $ openssl req -new -key app_key.pem -x509 -days 365 -out app_cert.pem
+# $ ls
+#   app_cert.pem  app_key.pem
+#
+# (will be telling paypal about: app_cert.pem 
+# => log into sandbox developer site as seller
+# => Profile > encrypted payment settings
+# => choose add, browse to file, add, NOTE: cert id after added
+# => download paypal's cert info
+# => block all non-encrypted requests: website payment preferences > block non-encrypted, SAVE
+# => 
+#
+# mv ~/Downloads/paypal_cert_pem.txt paypal_cert.pem
+
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
   
   end  # class PayPalWPA
-
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-script/generate nifty_scaffold payment_notification params:text cart_id:integer status:string transaction_id:string create
-rake db:migrate
-curl -d "txn_id=3XC103945N720211C&invoice=923204115&payment_status=Completed" http://localhost:3000/payment_notifications
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
 # #############################################################################
 
   end  # module Gateways

@@ -1,6 +1,13 @@
 class PaymentNotificationsController < ApplicationController
 
-protect_from_forgery :except => [:create]
+protect_from_forgery :except => [:create]  # obviates need for authencity token
+
+# this is needed so that PayPal-like services with async status communications
+# will be able to have a URL to asynch advise us of payment notifications
+# by recording all notifications within DB, we have a complete history of
+# of an account
+
+# TODO: make this gateway agnostic by having wrappers lower down
 
   def create
     PaymentNotification.create!(
