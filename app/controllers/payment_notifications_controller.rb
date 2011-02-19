@@ -8,6 +8,8 @@ protect_from_forgery :except => [:create]  # obviates need for authencity token
 # of an account
 
 # TODO: make this gateway agnostic by having wrappers lower down
+# use shared secret to confirm paypal IPN validity
+
 
   def create
     PaymentNotification.create!(

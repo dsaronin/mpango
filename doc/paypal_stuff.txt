@@ -1,4 +1,6 @@
+##############################################################################
 Working with PayPal
+##############################################################################
 
 Q: Can I control when PayPal subscription payments are made?
 
@@ -30,3 +32,317 @@ box next to the Within selector and choose The Past Year.
 
 On the subscription details page, click the Cancel Subscription button at 
 the bottom of the page and confirm.
+
+##############################################################################
+##############################################################################
+== Example
+
+ class Order < ActiveRecord::Base
+   acts_as_state_machine :initial => :opened
+
+   state :opened
+   state :closed, :enter => Proc.new {|o| Mailer.send_notice(o)}
+   state :returned
+
+   event :close do
+     transitions :to => :closed, :from => :opened
+   end
+
+   event :return do
+     transitions :to => :returned, :from => :closed
+   end
+ end
+
+ o = Order.create
+ o.close! # notice is sent by mailer
+ o.return!
+
+##############################################################################
+##############################################################################
+class Nonprofit < ActiveRecord::Base
+
+    acts_as_state_machine :initial => :created, :column => 'status'
+
+    # These are all of the states for the existing system.
+    state :submitted
+    state :processing
+    state :nonprofit_reviewing
+    state :accepted
+
+    event :accept do
+      transitions :from => :processing, :to => :accepted
+      transitions :from => :nonprofit_reviewing, :to => :accepted
+    end
+
+    event :receive do
+      transitions :from => :submitted, :to => :processing
+    end
+
+    # either a CTP  or nonprofit user edits the entry, requiring a review
+    event :send_for_review do
+      transitions :from => :processing, :to => :nonprofit_reviewing
+      transitions :from => :nonprofit_reviewing, :to => :processing
+      transitions :from => :accepted, :to => :nonprofit_reviewing
+    end
+
+  end
+  
+#############################################################################
+SPREE docs -- http://spreecommerce.com/documentation/checkout.html
+#############################################################################
+
+Checkout Architecture
+
+The following is a detailed summary of the checkout architecture. 
+A complete understanding of this architecture will allow you to be able to 
+customize the checkout process to handle just about any scenario you can 
+think of. Feel free to skip this section and come back to it later if you 
+require a deeper understanding of the design in order to customize your checkout.
+
+3.1 Checkout Routes
+
+Three custom routes in spree_core handle all of the routing for a checkout:
+
+
+   match '/checkout/update/:state' => 'checkout#update', :as => :update_checkout
+   match '/checkout/:state' => 'checkout#edit', :as => :checkout_state
+   match '/checkout' => 'checkout#edit', :state => 'address', :as => :checkout
+   
+The ‘/checkout’ route maps to the edit action of the CheckoutController and 
+provides the default state of ‘address’. The ‘/checkout/:state’ route also 
+maps to the edit action of CheckoutController, however the state is supplied in 
+the url. The ‘/checkout/update/:state’ route maps to the 
+CheckoutController#update action
+
+3.2 CheckoutController
+
+The CheckoutController drives the state of an Order object during checkout. 
+Since there is no “checkout” model, the CheckoutController is not a typical 
+RESTful controller. The spree_core and spree_auth gems expose a few different 
+actions for the CheckoutController.
+
+The edit action renders the checkout/edit.html.erb template. The update action 
+performs the following:
+
+Updates the current_order with the paramaters passed in from the current step.
+Transitions the order state machine using the next event after successfully 
+updating the order.
+
+Executes callbacks based on the new state after successfully transitioning.
+Redirects to the next checkout step if the current_order.state is anything 
+other than complete, else redirect to the order_path for current_order
+For security reasons, the CheckoutController will not update the Order once 
+the checkout process is complete. It is therefore impossible for an order to 
+be tampered with (ex. changing the quantity) after checkout.
+3.2.1 Filters
+
+The spree_core and spree_auth gems define several before_filters for the 
+CheckoutController:
+
+
+The Order Model and State Machine
+
+The Order state machine is the foundation of the checkout process. 
+Spree makes use of the state_machine gem in the Order model as well as in 
+several other places (such as Shipment and InventoryUnit.)
+An Order object has an initial state of ‘cart’. From there any number of 
+events transition the Order to different states. Spree does not have a 
+separate model or database table for the shopping cart. We reached this 
+decision when taking a REST approach to modeling our resources. 
+What the user considers a “shopping cart” is actually an in-progress Order. 
+An order is considered in-progress, or incomplete when its completed_at 
+attribute is null. Incomplete orders can be easily filtered during reporting 
+and its also simple enough to write a quick script to periodically purge 
+incomplete orders from the system. The end result is a simplified data 
+model along with the ability for store owners to search and report on 
+incomplete/abandoned orders.
+
+The default state machine for the Order model is defined in order.rb of 
+spree_core as follows:
+
+
+state_machine :initial => 'cart', :use_transactions => false do
+
+  event :next do
+    transition :from => 'cart', :to => 'address'
+    transition :from => 'address', :to => 'delivery'
+    transition :from => 'delivery', :to => 'payment'
+    transition :from => 'payment', :to => 'confirm'
+    transition :from => 'confirm', :to => 'complete'
+  end
+
+  before_transition :to => 'complete' do |order|
+    begin
+      order.process_payments!
+    rescue Spree::GatewayError
+      if Spree::Config[:allow_checkout_on_gateway_error]
+        true
+      else
+        false
+      end
+    end
+  end
+
+  after_transition :to => 'complete', :do => :finalize!
+  after_transition :to => 'delivery', :do => :create_tax_charge!
+  after_transition :to => 'payment', :do => :create_shipment!
+end
+
+There are a few other events and transitions omitted for clarity. 
+For example the ‘cancel’ event transitions the state to the ‘canceled’ state.
+For more information on the state machine gem please see the README: 
+  http://github.com/pluginaweek/state_machine
+  
+
+##############################################################################
+http://www.practicalecommerce.com/blogs/post/440-Acts-As-State-Machine-Is-Now-A-Gem
+##############################################################################
+
+Installation
+
+To install the gem, you have two choices. You can simply install the gem 
+manually on your machine using the following commands:
+
+sudo gem sources -a http://gems.github.com
+sudo gem install rubyist-aasm
+The first command will update your gem sources with the Github gem repository, 
+which only needs to be done once. The second command installs the rubyist-aasm 
+gem to you machine. Notice that with Github gems, the name of the gem will be 
+username-gem name, which is the convention that they are starting. Because of 
+this, installing the gem using gem dependencies is done with the following 
+line in you environment.rb file:
+
+config.gem 'rubyist-aasm', :version => '~> 2.0.2', :lib => 'aasm', 
+        :source => "http://gems.github.com"
+
+As you can see, when using dependencies we need to tell it that the lib 
+variable is aasm, which allows Rails to understand that we are requiring 
+the AASM gem. It's a small thing to remember, but important if you are 
+installing gems via dependencies. Once you have set your dependencies, 
+you can install all gems for your application at once using the command:
+
+rake gems:install
+Doing so will install all the gems that your application is dependent on. 
+But enough about that, let's take a quick look at the differences in the 
+AASM gem, and how to use it. I outlined usage of the original 
+actsasstate_machine plugin before, and wanted to be sure to cover the changes.
+
+Usage
+
+First off is that states are no longer limited to Activerecord objects. 
+In fact, the new AASM gem allows you to add states to any class that you want. 
+Really all you need is a field somewhere that will be storing the state of your 
+object, and you can run from there. Let's look at an example model file to help 
+explain how to use it:
+
+class Invoice < ActiveRecord::Base
+  include AASM
+
+  aasm_column :state
+  aasm_initial_state :pending
+  aasm_state :pending
+  aasm_state :viewed, :enter => :view_invoice
+  aasm_state :printed, :enter => :print_invoice
+
+  aasm_event :view do
+    transitions :to => :viewed, :from => [:pending]
+  end
+
+  aasm_event :print do
+    transitions :to => :printed, :from => [:viewed, :pending]
+  end
+
+  def view_invoice
+    # Called when record moves into the "viewed" state.
+  end
+
+  def print_invoice
+    # Called when record moves into the "printed" state.
+  end
+
+end
+Let's take a minute to see what we have done. First of all, we have to include 
+the AASM methods in our model, which is done with the include AASM line above.
+
+Secondly we define the column that will be holding our state, which in our case 
+is a field called state. In our case, this field will be holding a text string 
+that is either pending, viewed or printed, based on the states that we defined 
+in our class file. One thing to notice is that when we define the states, we can 
+define a method to fire when a record enters that state.
+
+In our example, we are telling the Invoice class that when an instance of this 
+class moves into the viewed state, we want it to run the method called 
+view_invoice. Similarly, we have also said that when the instance of this 
+class moves to the printed state, we want it to run the print_invoice method. 
+I have not defined either of these methods, but rather stubbed them out in the 
+code to illustrate how it is done. In my experience, this can replace observers 
+in many instances where you want something to happen based on a state change, 
+and not necessarily every time a record is created or updated.
+
+Finally, we define the transitions that this class is allowed to go through. 
+As you can see, our record starts out in the pending state. We have defined 2 
+vents, which are called view and print. Looking closely at those event 
+definitions, you will see that a record can only move to the viewed state 
+from the pending state. However, a record can move to the printed state 
+regardless of it's previous state. This is a great feature of AASM in that 
+you can control whether or not a record is allowed to make a transition based 
+on the state that it is currently in.
+
+
+Once we have defined our events, we are automatically given some new methods 
+for each instance of this class. For example, in our controller code we can 
+use something like the following in order to initiate a transition:
+
+@invoice = Invoice.find(params[:id])
+@invoice.view!
+As you can see, we first find the invoice that we want to work with, and then 
+we can use the view! method to transition that instance to the viewed state. 
+Based on the events that we have created in our class file, we are now allowed 
+to use the following methods:
+
+
+instance.view!
+instance.print!
+Simply putting an exclamation mark after our defined event title makes it all 
+happen. This is about as simple as it can be.
+
+With any luck this helps people to continue taking advantage of the 
+functionality offered by the AASM gem, and also to help them make the transition 
+from the plugin to the gem. One last thing to mention is that if you are using 
+the RESTful_authentication there is now a flag in the generator that will allow 
+you to use the AASM gem rather than the older acts_as_state_machine plugin.
+
+##############################################################################
+aasm README
+
+This example uses a few of the more complex features available.
+
+  class Relationship
+    include AASM
+
+    aasm_column :status
+
+    aasm_initial_state Proc.new { |relationship| relationship.strictly_for_fun? ? :intimate : :dating }
+
+    aasm_state :dating,   :enter => :make_happy,        :exit => :make_depressed
+    aasm_state :intimate, :enter => :make_very_happy,   :exit => :never_speak_again
+    aasm_state :married,  :enter => :give_up_intimacy,  :exit => :buy_exotic_car_and_wear_a_combover
+
+    aasm_event :get_intimate do
+      transitions :to => :intimate, :from => [:dating], :guard => :drunk?
+    end
+
+    aasm_event :get_married do
+      transitions :to => :married, :from => [:dating, :intimate], :guard => :willing_to_give_up_manhood?
+    end
+
+    def strictly_for_fun?; end
+    def drunk?; end
+    def willing_to_give_up_manhood?; end
+    def make_happy; end
+    def make_depressed; end
+    def make_very_happy; end
+    def never_speak_again; end
+    def give_up_intimacy; end
+    def buy_exotic_car_and_wear_a_combover; end
+  end
