@@ -1,5 +1,16 @@
 # ############################################################################
 # ############################################################################
+# ############################################################################
+# mpango stack (highest to lowest)  (SM = state machine)
+#
+#     tier                  SM? description
+# ----------------------------------------------------------------------------
+#  product feature              product tiers for an account
+#  account product          SM  product billable transitions
+#  subscription billing     SM  generic recurring billing processing
+#  billing gateway              abstract interface to gateway 
+#  gateway access               specific gateway control
+# ############################################################################
 module Mpango
 
 # ############################################################################
