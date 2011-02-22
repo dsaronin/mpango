@@ -120,7 +120,7 @@ module Mpango
 #     certs/biller_cert.pem -- paypal public key
 #     certs/app_cert.pem    -- our public key
 #     certs/app_key.pem     -- our private key
-# => shopping cart has line_items each with: 
+# => shopping cart has cart_items each with: 
 #    unit_price, product (name), id, quantity
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ module Mpango
       :notify_url => notify_url,
       :cert_id => APP_CONFIG[:gateway_site_certificate]
     }
-    line_items.each_with_index do |item, index|
+    cart_items.each_with_index do |item, index|
       values.merge!({
         "amount_#{index+1}" => item.unit_price,
         "item_name_#{index+1}" => item.product.name,

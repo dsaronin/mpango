@@ -12,14 +12,14 @@ Example goes here.
 Usage for mpango modules
 ===========================
 
-App models    mpango modules       control purpose::relationships
+App models      mpango modules       control purpose::relationships
 ----------------------------------------------------------------------------
-Account      AccountProduct      User::Account global
-Product      ProductFeature      Account::Product global
-Cart         PayPalWPS           Individual purchase/upgrade::gateway
-LineItem                         items within cart
-Subscription SubscriptionBilling account::gateway::subscription
-PaymentNotes                     gateway info per account::subscription
+Account         AccountProduct      User::Account global
+Product         ProductFeature      Account::Product global
+Cart            PayPalWPS           Individual purchase/upgrade::gateway
+CartItem                            line items within cart
+Subscription    SubscriptionBilling account::gateway::subscription
+TransactionNote                     gateway info per account::subscription
 
 ############################################################################
 mpango stack (highest to lowest)  (SM = state machine)
