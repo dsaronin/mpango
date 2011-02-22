@@ -28,6 +28,8 @@ module Mpango
   ]
     
   end # module ProductFeature
+# => transition premium features to lower if downgrade
+# => initiate purchase change if downgrade
 
 # ############################################################################
 end # module Mpango

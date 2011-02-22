@@ -35,11 +35,10 @@ module Mpango
 # upgrade_subscription -- change subscription level (down or up)
 # actions required:
 # => initiate purchase if upgrading; coordinate with next billing cycle
-# => transition premium features to lower if downgrade
-# => initiate purchase change if downgrade
 # ---------------------------------------------------------------------------
     aasm_event :upgrade_subscription do
       transitions :to => :billable_product,   :from => [:unbillable_product, :trial_period, :disabled]
+      transitions :to => :billable_product,   :from => :billable_product
     end
     
 # ---------------------------------------------------------------------------
