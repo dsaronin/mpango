@@ -1,11 +1,7 @@
 -# checkout cart linkage
 
-= link_to "Checkout", @cart.paypal_url(products_url, payment_notifications_url )
-
-- # for encryption, replace simple link above with a form to be POSTed
-
-- form_tag APP_CONFIG[:paypal_url] do
+- form_tag APP_CONFIG[:gateway_url] do
   = hidden_field_tag :cmd, "_s-xclick"
-  = hidden_field_tag :encrypted, @cart.paypal_encrypted(products_url, payment_notifications_url(:secret => APP_CONFIG[:paypal_secret]))
+  = hidden_field_tag :encrypted, @cart.encrypted_subscription_form(return_url, payment_notifications_url(:secret => APP_CONFIG[:gateway_secret]))
   %p
-    = submit_tag "Checkout"
+    = submit_tag( image_tag( "https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribe_LG.gif", {:alt => "PayPal - The safer, easier way to pay online!"} ) )

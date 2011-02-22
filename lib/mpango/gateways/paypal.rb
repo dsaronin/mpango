@@ -81,72 +81,6 @@ module Mpango
 #  Reattempts will not occur if another subscription payment is scheduled within 
 #  14 days of the failed payment, so that payments do not overlap.
 #
-# #############################################################################
-
-    class PayPalWPS
-
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-  def paypal_url(return_url, notify_url)
-    values = {
-      :business => 'seller_1229899173_biz@railscasts.com',
-      :cmd => '_cart',
-      :upload => 1,
-      :return => return_url,
-      :invoice => id,
-      :notify_url => notify_url
-    }
-    line_items.each_with_index do |item, index|
-      values.merge!({
-        "amount_#{index+1}" => item.unit_price,
-        "item_name_#{index+1}" => item.product.name,
-        "item_number_#{index+1}" => item.id,
-        "quantity_#{index+1}" => item.quantity
-      })
-    end
-    "https://www.sandbox.paypal.com/cgi-bin/webscr?" + values.to_query
-  end    
-  # + values.map { |k,v| "#{k} = #{v}"}.join("&")
-
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-  def paypal_encrypted(return_url, notify_url)
-    values = {
-      :business => APP_CONFIG[:paypal_email],
-      :cmd => '_cart',
-      :upload => 1,
-      :return => return_url,
-      :invoice => id,
-      :notify_url => notify_url,
-      :cert_id => APP_CONFIG[:paypal_cert_id]
-    }
-    line_items.each_with_index do |item, index|
-      values.merge!({
-        "amount_#{index+1}" => item.unit_price,
-        "item_name_#{index+1}" => item.product.name,
-        "item_number_#{index+1}" => item.id,
-        "quantity_#{index+1}" => item.quantity
-      })
-    end
-    encrypt_for_paypal(values)
-  end
-
-PAYPAL_CERT_PEM = File.read("#{Rails.root}/certs/paypal_cert.pem")
-APP_CERT_PEM = File.read("#{Rails.root}/certs/app_cert.pem")
-APP_KEY_PEM = File.read("#{Rails.root}/certs/app_key.pem")
-
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-  def encrypt_for_paypal(values)
-    signed = OpenSSL::PKCS7::sign(OpenSSL::X509::Certificate.new(APP_CERT_PEM), OpenSSL::PKey::RSA.new(APP_KEY_PEM, ''), values.map { |k, v| "#{k}=#{v}" }.join("\n"), [], OpenSSL::PKCS7::BINARY)
-    OpenSSL::PKCS7::encrypt([OpenSSL::X509::Certificate.new(PAYPAL_CERT_PEM)], signed.to_der, OpenSSL::Cipher::Cipher::new("DES3"), OpenSSL::PKCS7::BINARY).to_s.gsub("\n", "")
-  end
-
-# -----------------------------------------------------------------------------
-#
 # -----------------------------------------------------------------------------
 # for testing in dev mode at localhost, we'll need the following to be used
 # to simulate IPN payment notification of a purchase. Grab the transaction id
@@ -174,9 +108,64 @@ APP_KEY_PEM = File.read("#{Rails.root}/certs/app_key.pem")
 # => block all non-encrypted requests: website payment preferences > block non-encrypted, SAVE
 # => 
 #
-# mv ~/Downloads/paypal_cert_pem.txt paypal_cert.pem
+# mv ~/Downloads/BILLER_CERT_PEM.txt paypal_cert.pem
+
+# #############################################################################
+
+    class PayPalWPS < Cart
 
 # -----------------------------------------------------------------------------
+# ASSUMPTIONS:
+# => config/app_config.yml holds billing gateway configuration values
+# => site certificates and encryption info:
+#     certs/biller_cert.pem -- paypal public key
+#     certs/app_cert.pem    -- our public key
+#     certs/app_key.pem     -- our private key
+# => shopping cart has line_items each with: 
+#    unit_price, product (name), id, quantity
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# encrypted_subscription_form -- returns encryption for accessing paypal
+# -----------------------------------------------------------------------------
+  def encrypted_subscription_form(return_url, notify_url)
+    values = {
+      :business => APP_CONFIG[:gateway_seller_id],
+      :cmd => '_cart',
+      :upload => 1,
+      :return => return_url,
+      :invoice => id,
+      :notify_url => notify_url,
+      :cert_id => APP_CONFIG[:gateway_site_certificate]
+    }
+    line_items.each_with_index do |item, index|
+      values.merge!({
+        "amount_#{index+1}" => item.unit_price,
+        "item_name_#{index+1}" => item.product.name,
+        "item_number_#{index+1}" => item.id,
+        "quantity_#{index+1}" => item.quantity
+      })
+    end
+    encrypt_for_paypal(values)
+  end
+  
+private
+
+  BILLER_CERT_PEM = File.read("#{Rails.root}/certs/biller_cert.pem")
+  APP_CERT_PEM = File.read("#{Rails.root}/certs/app_cert.pem")
+  APP_KEY_PEM = File.read("#{Rails.root}/certs/app_key.pem")
+
+# -----------------------------------------------------------------------------
+# encrypt_for_paypal -- encryption for PayPal
+# code courtesy of Railscasts #143
+# -----------------------------------------------------------------------------
+  def encrypt_for_paypal(values)
+    signed = OpenSSL::PKCS7::sign(OpenSSL::X509::Certificate.new(APP_CERT_PEM), OpenSSL::PKey::RSA.new(APP_KEY_PEM, ''), values.map { |k, v| "#{k}=#{v}" }.join("\n"), [], OpenSSL::PKCS7::BINARY)
+    OpenSSL::PKCS7::encrypt([OpenSSL::X509::Certificate.new(BILLER_CERT_PEM)], signed.to_der, OpenSSL::Cipher::Cipher::new("DES3"), OpenSSL::PKCS7::BINARY).to_s.gsub("\n", "")
+  end
+
+# -----------------------------------------------------------------------------
+#
+## -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
 #

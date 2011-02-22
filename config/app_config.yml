@@ -1,19 +1,33 @@
-# app_config.yml
+# ############################################################################
+# app_config.yml -- configuration for BillingGateway
+# variables needed to configure gateway assumed to be in config/app_config.yml
+# future gateways may need more variables (add okay); not every gateway needs
+# the entire set of variables
+# min required:
+# gateway => gateway name selector
+# gateway_url => gateway url
+# gateway_seller_id=> seller_id (name, email, etc)
+# gateway_site_certificate => site certificate identifier
+# ############################################################################
+# ############################################################################
 
 development:
-  paypal_email: seller_1229899173_biz@railscasts.com
-  paypal_secret: foobar
-  paypal_cert_id: WKKX2FSCFDB8C
-  paypal_url: "https://www.sandbox.paypal.com/cgi-bin/webscr"
+  gateway: PayPalWPS
+  gateway_seller_id: seller_1229899173_biz@railscasts.com
+  gateway_secret: "wild blue"
+  gateway_site_certificate: WKKX2FSCFDB8C
+  gateway_url: "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
 test:
-  paypal_email: test@example.com
-  paypal_secret: testsecret
-  paypal_cert_id: 123456789
-  paypal_url: testpaypalurl
+  gateway: PayPalWPS
+  gateway_seller_id: seller_1229899173_biz@railscasts.com
+  gateway_secret: "passion pink"
+  gateway_site_certificate: WKKX2FSCFDB8C
+  gateway_url: "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
 production:
-  paypal_email: foo@example.com
-  paypal_secret: supersecret
-  paypal_cert_id: KLHZSK326HEDS
-  paypal_url: "https://www.paypal.com/cgi-bin/webscr"
+  gateway: PayPalWPS
+  gateway_seller_id: seller_1229899173_biz@railscasts.com
+  gateway_secret: "peanut clusters"
+  gateway_site_certificate: WKKX2FSCFDB8C
+  gateway_url: "https://www.paypal.com/cgi-bin/webscr"
