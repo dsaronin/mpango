@@ -9,5 +9,28 @@ Example
 
 Example goes here.
 
+Usage for mpango modules
+===========================
+
+App models    mpango modules       control purpose::relationships
+----------------------------------------------------------------------------
+Account      AccountProduct      User::Account global
+Product      ProductFeature      Account::Product global
+Cart         PayPalWPS           Individual purchase/upgrade::gateway
+LineItem                         items within cart
+Subscription SubscriptionBilling account::gateway::subscription
+PaymentNotes                     gateway info per account::subscription
+
+############################################################################
+mpango stack (highest to lowest)  (SM = state machine)
+
+   tier                  SM? description
+----------------------------------------------------------------------------
+product feature          SM  product tiers for an account
+account product          SM  product billable transitions
+subscription billing     SM  generic recurring billing processing
+billing gateway              abstract interface to gateway 
+gateway access               specific gateway control
+############################################################################
 
 Copyright (c) 2011 David Anderson, released under the MIT license
