@@ -15,7 +15,7 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "mpango"
-  gem.homepage = "git@github.com:dsaronin/mpango.git"
+  gem.homepage = "git://github.com/dsaronin/mpango.git"
   gem.license = "MIT for the gem"
   gem.summary = %Q{PayPal Web Standard w/ Recurring Payments billing stack}
   gem.description = %Q{provides billing stack for use of PayPal Web Standards}
