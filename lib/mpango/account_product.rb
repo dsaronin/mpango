@@ -17,8 +17,9 @@
 
 module Mpango
   module AccountProduct
-    require 'aasm'  # act as state machine gem
-    
+
+    include AASM  # act as state machine gem
+
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
     aasm_column :account_state   # expects this field for persistance
