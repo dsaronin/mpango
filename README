@@ -7,6 +7,36 @@ Introduction goes here.
 Example
 =======
 
+Encryption
+==========================
+# => site certificates and encryption info:
+#     certs/biller_cert.pem -- paypal public key
+#     certs/app_cert.pem    -- our public key
+#     certs/app_key.pem     -- our private key
+
+
+# For encryption, need to complete public/private key and certificate locally
+# will need to have openssl installed (already is on ubuntu ruby stuff)
+#
+# $ mkdir certs   (within current rails project, for site certificates, keys)
+# $ cd certs
+# $ openssl genrsa -out app_key.pem 1024
+# $ openssl req -new -key app_key.pem -x509 -days 365 -out app_cert.pem
+# $ ls
+#   app_cert.pem  app_key.pem
+#
+# (will be telling paypal about: app_cert.pem 
+# => log into sandbox developer site as seller
+# => Profile > encrypted payment settings
+# => choose add, browse to file, add, NOTE: cert id after added
+# => download paypal's cert info
+# => block all non-encrypted requests: 
+#    website payment preferences > block non-encrypted, SAVE
+# => 
+#
+# mv ~/Downloads/BILLER_CERT_PEM.txt paypal_cert.pem
+
+
 Example goes here.
 
 Usage for mpango modules

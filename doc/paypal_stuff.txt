@@ -1,5 +1,5 @@
 ##############################################################################
-Working with PayPal
+Working with PayPal 
 ##############################################################################
 
 Q: Can I control when PayPal subscription payments are made?
@@ -32,4 +32,313 @@ box next to the Within selector and choose The Past Year.
 
 On the subscription details page, click the Cancel Subscription button at 
 the bottom of the page and confirm.
+#############################################################################
 
+# #############################################################################
+# PayPal Website Payments Standard Service
+# #############################################################################
+#  IPN
+#
+#  Using Instant Payment Notification to Track Subscribe Transactions
+#  PayPal lets your web server receive messages about Subscribe transactions and
+#  payment activity on your account. If you activate Instant Payment 
+#  Notification, PayPal sends messages when:  
+#  -  Payments are first made, with a status of completed or pending.
+#  -  Payments clear, fail, or are denied, if the initial status was pending.
+#  -  Subscriptions begin, end, or are canceled, 
+#     if you use Subscriptions Password Management.
+#
+#  How Billing Cycles and Recurring Payments Work
+#  
+#  PayPal attempts to collect recurring payments from subscribers on the day 
+#  after the previous billing cycle or trial period ends. Billing cycles can be 
+#  daily, weekly, monthly or yearly, depending on the terms of the original 
+#  subscription.
+#
+#  Working With Modify Subscription Buttons
+#
+#  Let subscribers modify their active subscriptions by adding a Modify 
+#  Subscription button to your website. If you offer different subscriptions 
+#  levels, Modify Subscription buttons let you subscribers upgrade to a higher 
+#  level without an interruption in service.
+#  
+#  How PayPal Lets Subscribers Modify Their Subscriptions
+#  Modify Subscription buttons let subscribers accept a new set of subscriptions
+#  terms and pricing for their current, active subscriptions.
+#  
+#  You can write the HTML code for Modify Subscription buttons that allow 
+#  subscribers to:
+#  
+#    Modify their active subscriptions, or sign up for new subscriptions
+#    Modify their active subscriptions only#
+#
+#  Working With Unsubscribe Buttons
+#  
+#  Let subscribers cancel their active subscriptions by adding Unsubscribe 
+#  buttons to your website.
+#  
+#  How PayPal Cancels Subscriptions
+#  
+#  When subscribers cancel subscriptions, they avoid future recurring payments.
+#  If subscribers cancel their subscriptions before payment is sent on the 
+#  day that a recurring payment is due, their subscriptions are canceled 
+#  immediately and no payments are made.
+#  
+#  NOTE: Subscribers can cancel their subscriptions from the Subscription 
+#  Details pages of their PayPal accounts.
+#
+#  Reattempting Failed Recurring Payments With Subscribe Buttons
+#  
+#  PayPal cancels subscriptions when recurring payments fail. A recurring 
+#  payment fails if funds cannot be moved from the subscriber’s PayPal account 
+#  to your own. Limits on the availability of funds in PayPal accounts occur 
+#  rarely, for a variety of reasons.
+#  
+#  Temporary limits that PayPal places on subscribers’ accounts are often 
+#  lifted quickly. To avoid unnecessary cancellations, you can specify that 
+#  PayPal should reattempt failed payments before canceling subscriptions.
+#  
+#  How PayPal Reattempts Failed Recurring Payments
+#  
+#  PayPal reattempts to collect recurring payments three days after the day 
+#  on which recurring payments fail. If the first reattempt to collect a 
+#  recurring payment fails, PayPal waits 5 days to reattempt a second time. 
+#  If the second reattempt fails, PayPal cancels the subscription.
+#  
+#  NOTE: Payments made with bank accounts are automatically reattempted 3 days 
+#  after PayPal notifies subscribers that their payments failed.  
+#  Reattempts will not occur if another subscription payment is scheduled within 
+#  14 days of the failed payment, so that payments do not overlap.
+#############################################################################
+
+
+#############################################################################
+HowTo from Railscasts 144, 145, 146
+#############################################################################
+Setting up PayPal Sandbox
+
+- developer.paypal.com
+  sign up for a sandbox developer's account
+  log into the sandbox
+  
+- sandbox
+  create seller account
+  create buyer  account
+  
+- ENTER SANDBOX TEST SITE: sign into seller account
+  - MERCHANT SERVICES TAB > WEBSITE PAYMENTS STANDARD > option 3 custom integration
+    shows variables for shopping cart (espec third party shopping cart)
+      
+    
+Howto tell paypal about: app_cert.pem
+
+- log into sandbox developer site as seller
+  Profile > encrypted payment settings
+  choose add
+    browse to file
+    add
+    NOTE (copy): cert id after added; add to app_config file
+  - download paypal's cert info
+  - $ mv ~/Downloads/paypal_cert_pem.txt certs/biller_cert.pem
+  
+  block all non-encrypted requests: 
+    website payment preferences > block non-encrypted, SAVE
+    
+#############################################################################
+# => site certificates and encryption info:
+#     certs/biller_cert.pem -- paypal public key
+#     certs/app_cert.pem    -- our public key
+#     certs/app_key.pem     -- our private key
+
+# For encryption, need to complete public/private key and certificate locally
+# will need to have openssl installed (already is on ubuntu ruby stuff)
+#
+# $ mkdir certs   (within current rails project, for site certificates, keys)
+# $ cd certs
+# $ openssl genrsa -out app_key.pem 1024
+# $ openssl req -new -key app_key.pem -x509 -days 365 -out app_cert.pem
+# $ ls
+#   app_cert.pem  app_key.pem
+#
+#
+# mv ~/Downloads/BILLER_CERT_PEM.txt paypal_cert.pem
+
+#############################################################################
+IPN status variables & values (Table A-4 PP_OrderManagement_IntegrationGuide
+#############################################################################
+payment_status      The status of the payment
+-----------------------------------------------------------------------------
+Canceled_Reversal   A reversal has been canceled. For example, you won a dispute 
+                    with the customer, and the funds for the transaction that 
+                    was reversed have been returned to you.
+                    
+Completed           The payment has been completed, and the funds have been 
+                    added successfully to your account balance.
+
+Denied              You denied the payment. This happens only if the payment was 
+                    previously pending because of possible reasons described for 
+                    the PendingReason element.
+
+Expired             This authorization has expired and cannot be captured.
+
+Failed              The payment has failed. This happens only if the payment was 
+                    made from your customer’s bank account.
+
+Pending             Payment is pending. See pending_reason for more information.
+
+Processed           A payment has been accepted.
+
+Refunded            You refunded the payment.
+
+Reversed            A payment was reversed due to a chargeback or other type of 
+                    reversal. The funds have been removed from your account 
+                    balance and returned to the buyer. The reason for the 
+                    reversal is specified in the ReasonCode element.
+
+Voided              This authorization has been voided
+
+
+pending_reason      This variable is set only if payment_status = Pending.
+
+address             The payment is pending because your customer did not include 
+                    a confirmed shipping address and your Payment Receiving 
+                    Preferences is set yo allow you to manually accept or deny 
+                    each of these payments. To change your preference, go to 
+                    the Preferences section of your Profile.
+authorization       You set <PaymentAction> Authorization</PaymentAction> on 
+                    SetExpressCheckoutRequest and have not yet captured funds.
+
+echeck              The payment is pending because it was made by an eCheck that has not yet cleared.
+
+intl                The payment is pending because you hold a non-U.S. account and do not have a withdrawal mechanism. You must manually accept or deny this payment from your AccountOverview.
+
+multicurrency       You do not have a balance in the currency 
+sent, and you do not have your Payment Receiving Preferences
+set to automatically convert and accept this payment. You must 
+manually accept or deny this payment.
+
+unilateral          The payment is pending because it was made to 
+an email address that is not yet registered or confirmed.
+
+upgrade             The payment is pending because it was made via 
+credit card and you must upgrade your account to Business or 
+Premier status in order to receive the funds. upgrade can also 
+mean that you have reached the monthly limit for transactions on 
+your account.
+
+verify              The payment is pending because you are not yet 
+verified. You must verify your account before you can accept this 
+payment.
+
+other               The payment is pending for a reason other than those 
+listed above. For more information, contact PayPal Customer 
+Service.
+
+reason_code         This variable is set if payment_status =Reversed, 
+Refunded, or Cancelled_Reversal
+
+chargeback: A reversal has occurred on this transaction due to 
+a chargeback by your customer.
+
+guarantee: A reversal has occurred on this transaction due to 
+your customer triggering a money-back guarantee.
+
+buyer-complaint: A reversal has occurred on this transaction 
+due to a complaint about the transaction from your customer.
+
+refund: A reversal has occurred on this transaction because you 
+have given the customer a refund.
+
+other: A reversal has occurred on this transaction due to a 
+reason not listed above.
+
+
+parent_txn_id       In the case of a refund, reversal, or canceled reversal, this 
+variable contains the txn_id of the original transaction, while 
+txn_id contains a new ID for the new transaction.
+
+payment_date        Time/Date stamp generated by PayPal, in the following format: 
+HH:MM:SS DD Mmm YY, YYYY PST
+
+mc_currency         Threecharacter currency code. 
+                    See table of supported currencies.
+
+For payment IPN notifications, this is the currency of the 
+payment. For non-payment subscription IPN notifications, this is 
+the currency of the subscription.
+
+mc_fee Transaction fee associated with the payment. mc_gross minus 
+mc_fee equals the amount deposited into the receiver_email
+account. Equivalent to payment_fee for USD payments. If this 
+amount is negative, it signifies a refund or reversal, and either of 
+those payment statuses can be for the full or partial amount of the 
+original transaction fee.
+
+auth_id       -- Authorization identification number
+auth_exp      -- Authorization expiration date and time, 
+              in the following format: HH:MM:SS DD Mmm YY, YYYY PST
+auth_amount   -- Authorization amount
+auth_status   -- Status of authorization
+  Completed
+  Pending
+  Voided
+
+mc_gross_x Transactionspecific for 
+multiple 
+currencies
+The amount is in the currency of mc_currency, where x is the 
+shopping cart detail item number. The sum of mc_gross_x 
+should total mc_gross.
+
+last_name Customer’s last name 64
+payer_
+business_
+name
+Customer’s company name, if customer represents a business 127
+payer_email Customer’s primary email address. Use this email to provide any 
+credits.
+127
+payer_id Unique customer ID. 13
+payer_
+status
+verified
+unverified
+Customer has a Verified PayPal account.
+Customer has an Unverified PayPal account.
+contact_
+phone
+Customer’s telephone number. 20
+residence_
+country
+Two-character ISO 3166 country code
+
+business Email address or account ID of the payment recipient (that is, the 
+merchant). Equivalent to the values of receiver_email (if 
+payment is sent to primary account) and business set in the 
+Website Payment HTML.
+NO T E: The value of this variable is normalized to lowercase 
+characters.
+127
+item_name Item name as passed by you, the merchant. Or, if not passed by 
+you, as entered by your customer. If this is a shopping cart 
+transaction, PayPal will append the number of the item (e.g., 
+item_name_1, item_name_2, and so forth).
+127
+item_number Pass-through variable for you to track purchases. It will get 
+passed back to you at the completion of the payment. If omitted, 
+no variable will be passed back to you
+
+quantity Quantity as entered by your customer or as passed by you, the 
+merchant. If this is a shopping cart transaction, PayPal appends 
+the number of the item (e.g. quantity1, quantity2).
+receiver_
+email
+Primary email address of the payment recipient (that is, the 
+merchant). If the payment is sent to a non-primary email address 
+on your PayPal account, the receiver_email is still your 
+primary email.
+NO T E: The value of this variable is normalized to lowercase 
+characters.
+127
+receiver_id Unique account ID of the payment recipient (i.e., the merchant). 
+This is the same as the recipient's referral ID.
