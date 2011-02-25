@@ -17,9 +17,17 @@
 
 module Mpango
   module AccountProduct
+  
+  def self.included(base)
+    base.extend ClassMethods
+  end
 
+
+  module ClassMethods
     include AASM  # act as state machine gem
-
+  end
+  
+  
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
     aasm_column :account_state   # expects this field for persistance
