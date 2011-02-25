@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{mpango}
-  s.version = "0.1.7"
+  s.version = "0.1.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Anderson"]
@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
     "pkg/mpango-0.1.3.gem",
     "pkg/mpango-0.1.5.gem",
     "pkg/mpango-0.1.6.gem",
+    "pkg/mpango-0.1.7.gem",
     "tasks/mpango_tasks.rake",
     "test.rb",
     "test/application.rb",

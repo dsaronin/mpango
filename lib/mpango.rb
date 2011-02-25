@@ -10,10 +10,10 @@ module Mpango
   
 end # module Mpango
 
-  require 'aasm'
+#  require 'aasm'
 
-  require File.join(File.dirname(__FILE__), 'mpango', 'account_product')
-  require File.join(File.dirname(__FILE__), 'mpango', 'billing_gateway')
-  require File.join(File.dirname(__FILE__), 'mpango', 'product_feature')
-  require File.join(File.dirname(__FILE__), 'mpango', 'subscription_billing')
-  require File.join(File.dirname(__FILE__), 'mpango', 'gateways','paypal')
+#  require File.join(File.dirname(__FILE__), 'mpango', 'account_product')
+#  require File.join(File.dirname(__FILE__), 'mpango', 'billing_gateway')
+#  require File.join(File.dirname(__FILE__), 'mpango', 'product_feature')
+#  require File.join(File.dirname(__FILE__), 'mpango', 'subscription_billing')
+#  require File.join(File.dirname(__FILE__), 'mpango', 'gateways','paypal')
