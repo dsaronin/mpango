@@ -18,7 +18,7 @@ module Mpango
   
   def self.included(base)
     base.extend Mpango::ProductFeature::ClassMethods
-    include AASM  # act as state machine gem
+    base.send(:include, AASM) # act as state machine gem
   end
 
 
