@@ -20,6 +20,7 @@ module Mpango
   
   def self.included(base)
     base.extend Mpango::SubscriptionBilling::ClassMethods
+    include AASM  # act as state machine gem
   end
 
 
@@ -28,7 +29,6 @@ module Mpango
   
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-    include AASM  # act as state machine gem
 
     aasm_column :subscription_state   # expects this field for persistance
     
