@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{mpango}
-  s.version = "0.1.11"
+  s.version = "0.1.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Anderson"]
@@ -22,10 +22,6 @@ Gem::Specification.new do |s|
     "README",
     "Rakefile",
     "VERSION",
-    "app/controllers/application_controller.rb",
-    "app/controllers/payment_notifications_controller.rb",
-    "app/helpers/application_helper.rb",
-    "app/helpers/payment_notifications_helper.rb",
     "app/models/cart.rb",
     "app/models/payment_notification.rb",
     "app/models/subscription.rb",
@@ -52,6 +48,7 @@ Gem::Specification.new do |s|
     "lib/tasks.rb",
     "mpango.gemspec",
     "pkg/mpango-0.1.10.gem",
+    "pkg/mpango-0.1.11.gem",
     "pkg/mpango-0.1.3.gem",
     "pkg/mpango-0.1.5.gem",
     "pkg/mpango-0.1.6.gem",

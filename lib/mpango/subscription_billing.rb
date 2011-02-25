@@ -19,8 +19,8 @@ module Mpango
   module SubscriptionBilling
   
   def self.included(base)
-    base.extend Mpango::SubscriptionBilling::ClassMethods
     base.send(:include, AASM) # act as state machine gem
+    base.extend Mpango::SubscriptionBilling::ClassMethods
   end
 
 
