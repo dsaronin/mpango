@@ -19,16 +19,17 @@ module Mpango
   module SubscriptionBilling
   
   def self.included(base)
-    base.extend ClassMethods
+    base.extend Mpango::SubscriptionBilling::ClassMethods
   end
 
 
   module ClassMethods
-    include AASM  # act as state machine gem
   end
   
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+    include AASM  # act as state machine gem
+
     aasm_column :subscription_state   # expects this field for persistance
     
     aasm_initial_state  :non_subscriber   # default starting state

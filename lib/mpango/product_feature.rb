@@ -17,14 +17,15 @@ module Mpango
   module ProductFeature
   
   def self.included(base)
-    base.extend ClassMethods
+    base.extend Mpango::ProductFeature::ClassMethods
   end
 
 
   module ClassMethods
-    include AASM  # act as state machine gem
   end
   
+    include AASM  # act as state machine gem
+
 # ---------------------------------------------------------------------------
 # => product feature levels
 # ---------------------------------------------------------------------------

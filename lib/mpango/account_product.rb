@@ -19,17 +19,18 @@ module Mpango
   module AccountProduct
   
   def self.included(base)
-    base.extend ClassMethods
+    base.extend Mpango::AccountProduct::ClassMethods
   end
 
 
   module ClassMethods
-    include AASM  # act as state machine gem
   end
   
   
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+    include AASM  # act as state machine gem
+
     aasm_column :account_state   # expects this field for persistance
     
     aasm_initial_state  :trial_period   # all accounts start here by default
