@@ -337,8 +337,21 @@ Primary email address of the payment recipient (that is, the
 merchant). If the payment is sent to a non-primary email address 
 on your PayPal account, the receiver_email is still your 
 primary email.
-NO T E: The value of this variable is normalized to lowercase 
+NOTE: The value of this variable is normalized to lowercase 
 characters.
 127
 receiver_id Unique account ID of the payment recipient (i.e., the merchant). 
 This is the same as the recipient's referral ID.
+
+
+UNSUBSCRIBE BUTTON
+====================================================================
+<A HREF="https://www.paypal.com/cgi-bin/webscr?
+cmd=_subscr-find
+&alias=alice%40mystore%2ecom" 
+_fcksavedurl="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=alice%40mystore%2ecom"
+>  
+
+<IMG BORDER="0" SRC="https://www.paypal.com/en_US/i/btn/btn_unsubscribe_LG.gif"></A> 
+
+BTN_UNSUBSCRIBE_URL
