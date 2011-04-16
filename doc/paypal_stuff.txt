@@ -144,6 +144,9 @@ Howto tell paypal about: app_cert.pem
   block all non-encrypted requests: 
     website payment preferences > block non-encrypted, SAVE
     
+    
+  Enhanced Recurring Payments for Website Payments Standard:
+  https://www.paypal.com/us/cgi-bin/webscr?cmd=_product-go&product=premium_services 
 #############################################################################
 # => site certificates and encryption info:
 #     certs/biller_cert.pem -- paypal public key
